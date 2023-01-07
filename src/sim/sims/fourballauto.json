@@ -1,0 +1,40 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "automode must be set to the correct testmode in droid param file",
+                        "start" : 1.0,
+                        "autonomous" : 15.0,
+                        "between" : 2.0,
+                        "teleop" : 0.0,
+                        "fms" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 2.0,
+            "events" : 
+            [
+                {
+                    "model" : "conveyor",
+                    "instance" : "1",
+                    "values" : {
+                        "comment" : "first ball breaks the middle sensor on the conveyor",
+                        "intake" : true,
+                        "shooter" : true,
+                        "middle" : false
+                    }
+                }
+            ]
+        }        
+    ]
+}
