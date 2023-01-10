@@ -1,0 +1,15 @@
+{
+    "_version": "1",
+    "drivetype": 1,
+    "efflength": 0.762,
+    "effwidth": 0.6096,
+    "lengthunits": "m",
+    "maxacceleration": 4,
+    "maxvelocity": 4,
+    "name": "myrobot",
+    "robotlength": 0.762,
+    "robotwidth": 0.6096,
+    "timestep": 0.02,
+    "weight": 180,
+    "weightunits": "lbs"
+}
