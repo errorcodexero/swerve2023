@@ -14,18 +14,8 @@
                         "start" : 0.2,
                         "autonomous" : 0.0,
                         "between" : 0.0,
-                        "teleop" : 2.0,
+                        "teleop" : 200.0,
                         "fms" : false
-                    }
-                },
-                {
-                    "model" : "swerve2022oi",
-                    "instance" : "1",
-                    "values" :
-                    {
-                        "comment" : "Collect/shoot mode switch set to collect",                        
-                        "button6" : true,
-                        "button4" : true                        
                     }
                 }
             ]

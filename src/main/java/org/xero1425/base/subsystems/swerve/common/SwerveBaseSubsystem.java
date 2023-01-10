@@ -6,12 +6,12 @@ import org.xero1425.base.subsystems.DriveBaseSubsystem;
 import org.xero1425.base.subsystems.Subsystem;
 import org.xero1425.misc.MinMaxData;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -32,7 +32,7 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
     private int index_ ;
 
     private SwerveDriveKinematics kinematics_ ;
-    private SwerveDriveOdometry odometry_ ;
+    private SwerveDrivePoseEstimator estimator_ ;
 
     private double [] angles_ ;
     private double [] powers_ ;
@@ -89,17 +89,12 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
     }
 
     protected void createOdometry() {
-        // SwerveDriveKinematics kinematics,
-        // Rotation2d gyroAngle,
-        // SwerveModulePosition[] modulePositions,
-        // Pose2d initialPose) {
-
         SwerveModulePosition [] poss = new SwerveModulePosition[4] ;
         poss[0] = getModulePosition(FL) ;
         poss[1] = getModulePosition(FR) ;
         poss[2] = getModulePosition(BL) ;
         poss[3] = getModulePosition(BR) ;
-        odometry_ = new SwerveDriveOdometry(kinematics_, Rotation2d.fromDegrees(gyro().getYaw()),poss) ;
+        estimator_ = new SwerveDrivePoseEstimator(kinematics_, getHeading(), poss, last_pose_) ;
     }
 
     // Control the swerve drive by settings a ChassisSppeds object
@@ -121,6 +116,10 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         setRawTargets(false, powers_, angles_);
     }
 
+    public void addVisionMeasurement(Pose2d vision, double when) {
+        estimator_.addVisionMeasurement(vision, when);
+    }
+
     @Override
     public void computeMyState() throws Exception {
         super.computeMyState();
@@ -130,7 +129,7 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         poss[1] = getModulePosition(FR) ;
         poss[2] = getModulePosition(BL) ;
         poss[3] = getModulePosition(BR) ;
-        odometry_.update(Rotation2d.fromDegrees(gyro().getYaw()), poss) ;
+        estimator_.update(Rotation2d.fromDegrees(gyro().getYaw()), poss) ;
 
         Pose2d p = getPose() ;
         double dist = p.getTranslation().getDistance(last_pose_.getTranslation()) ;
@@ -152,12 +151,8 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         return kinematics_ ;
     }
 
-    protected SwerveDriveOdometry getOdometry() {
-        return odometry_ ;
-    }
-    
     public Pose2d getPose() {
-        return odometry_.getPoseMeters() ;
+        return estimator_.getEstimatedPosition() ;
     }
 
     public void setPose(Pose2d pose) {
@@ -168,7 +163,7 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         poss[1] = getModulePosition(FR) ;
         poss[2] = getModulePosition(BL) ;
         poss[3] = getModulePosition(BR) ;
-        odometry_.resetPosition(rot, poss, pose) ;
+        estimator_.resetPosition(rot, poss, pose) ;
         gyro().reset() ;
     }
 
