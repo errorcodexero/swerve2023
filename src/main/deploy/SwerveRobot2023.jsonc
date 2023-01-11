@@ -151,7 +151,7 @@
                 "angle-tolerance": 15.0
             }
         },
-        "swerve2022oi": {
+        "swerve2023oi": {
             "swerve_gamepad": {
                 "index": 0,
                 "angle": {

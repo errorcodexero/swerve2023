@@ -40,8 +40,7 @@ public class PhotonVisionSubsystem extends Subsystem {
         z = getSettingsValue("cam1:offset:z").getDouble() ;
         xform = new Transform3d(new Translation3d(x, y, z), new Rotation3d(0.0, 0.0, 0.0)) ;
         cameras_.add(new Pair<PhotonCamera, Transform3d>(cam, xform)) ;
-
-        estimator_ = new RobotPoseEstimator(layout_, PoseStrategy.LOWEST_AMBIGUITY, cameras_) ;
+        estimator_ = new RobotPoseEstimator(getRobot().getAprilTags("AprilTags.json"), PoseStrategy.LOWEST_AMBIGUITY, cameras_) ;
     }
     
     @Override

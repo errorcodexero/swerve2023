@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.xero1425.simulator.engine.SimulationEngine;
+import org.xero1425.websrv.StatusServer;
 import org.xero1425.misc.MessageType;
 import org.xero1425.misc.MissingParameterException;
 import org.xero1425.misc.SettingsValue;
@@ -116,13 +118,14 @@ public abstract class XeroRobot extends TimedRobot {
     // The type of pneumatics on the robot
     private PneumaticsModuleType pneumatics_type_ ;
 
+    // Server for dispalying the status of the robot
+    private StatusServer server_ ;
+
     /// \brief The "subsystem" name for the message logger for this class
     public static final String LoggerName = "xerorobot" ;
 
     // A array to convert hex characters to integers
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-
-    private boolean toggle_ = true ;
 
     /// \brief Create a new XeroRobot robot
     /// \param period the robot loop timing (generally 20 ms)
@@ -195,6 +198,14 @@ public abstract class XeroRobot extends TimedRobot {
         last_time_ = getTime();
 
         automode_ = -1;
+
+        try {
+            server_ = new StatusServer(9001) ;
+            server_.start() ;
+        }
+        catch(IOException ex) {
+
+        }
     }
 
     public List<AutoMode> getAllAutomodes() {
@@ -556,19 +567,23 @@ public abstract class XeroRobot extends TimedRobot {
         loop_count_ = 0 ;
     }
 
+    public void publishSubsystemStatus(String subsystem, String status) {
+        server_.setSubsystemStatus(subsystem, status);
+    }
+
     /// \brief Called from the base class each robot loop while in the disabled state
     @Override
     public void disabledPeriodic() {
         if (robot_subsystem_ == null)
             return;
 
-        robot_subsystem_.putDashboard("Toggle", DisplayType.Always, toggle_);
-        toggle_ = !toggle_ ;
-
         double initial_time = getTime();
         delta_time_ = initial_time - last_time_;
 
         updateAutoMode();
+
+        server_.setRobotStatus("RobotStatus");
+        robot_subsystem_.publishStatus() ;
 
         try {
             robot_subsystem_.computeState();
@@ -755,9 +770,6 @@ public abstract class XeroRobot extends TimedRobot {
         double initial_time = getTime() ;
         delta_time_ = initial_time - last_time_ ;
 
-        robot_subsystem_.putDashboard("Toggle", DisplayType.Always, toggle_);
-        toggle_ = !toggle_ ;
-
         if (getCompressor() != null)
             robot_subsystem_.putDashboard("Pressure", DisplayType.Always, getCompressor().getPressure()) ;
 
@@ -816,7 +828,29 @@ public abstract class XeroRobot extends TimedRobot {
     }
 
     public void logStackTrace(StackTraceElement [] trace) {
+        if (isSimulation()) {
+            //
+            // Make if we stack trace and write to log file, the
+            // simulation should fail.
+            //
+            SimulationEngine.getInstance().addAssertError() ;
+        }
         logger_.logStackTrace(trace) ;
+    }
+
+    public AprilTagFieldLayout getAprilTags(String name) {
+        String path = robot_paths_.deployDirectory() + name ;
+        AprilTagFieldLayout layout ;
+        
+        try {
+            layout = new AprilTagFieldLayout(path) ;
+        }
+        catch (IOException ex) {
+            logger_.startMessage(MessageType.Error).add("cannot load april tag file '" + path + "' - " + ex.getMessage()).endMessage();
+            layout = null ;
+        }
+
+        return layout ;
     }
 
     private void logAutoModeState() {

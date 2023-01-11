@@ -4,8 +4,11 @@ import org.xero1425.base.motors.BadMotorRequestException;
 import org.xero1425.base.motors.MotorRequestFailedException;
 import org.xero1425.base.subsystems.DriveBaseSubsystem;
 import org.xero1425.base.subsystems.Subsystem;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 import org.xero1425.misc.MinMaxData;
 
+import edu.wpi.first.hal.PowerDistributionStickyFaults;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -79,7 +82,6 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         kinematics_ = new SwerveDriveKinematics(new Translation2d(getWidth() / 2.0, getLength() / 2.0), new Translation2d(getWidth() / 2.0, -getLength() / 2.0), 
                         new Translation2d(-getWidth() / 2.0, getLength() / 2.0), new Translation2d(-getWidth() / 2.0, -getLength() / 2.0)) ;
 
-
         ShuffleboardTab shuffleboardTab = Shuffleboard.getTab("Drivetrain");
         shuffleboardTab.addNumber("Heading", () -> getHeading().getDegrees());
         shuffleboardTab.addNumber("Pose X", () -> getPose().getX());
@@ -88,13 +90,24 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         last_pose_ = new Pose2d() ;
     }
 
-    protected void createOdometry() {
+    protected void createOdometry() throws Exception {
         SwerveModulePosition [] poss = new SwerveModulePosition[4] ;
         poss[0] = getModulePosition(FL) ;
         poss[1] = getModulePosition(FR) ;
         poss[2] = getModulePosition(BL) ;
         poss[3] = getModulePosition(BR) ;
-        estimator_ = new SwerveDrivePoseEstimator(kinematics_, getHeading(), poss, last_pose_) ;
+
+        Rotation2d heading = Rotation2d.fromDegrees(gyro().getYaw()) ;
+        
+        try {
+            estimator_ = new SwerveDrivePoseEstimator(kinematics_, heading, poss, last_pose_) ;
+        } catch(Exception ex) {
+            MessageLogger logger = getRobot().getMessageLogger() ;
+            logger.startMessage(MessageType.Error) ;
+            logger.add("exception thrown creating SwerveDrivePoseEstimator - " + ex.getMessage()) ;
+            logger.endMessage();
+            throw ex ;
+        }
     }
 
     // Control the swerve drive by settings a ChassisSppeds object
