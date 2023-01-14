@@ -1,7 +1,7 @@
 package org.xero1425.base.subsystems;
 
 import org.xero1425.base.XeroRobot;
-import org.xero1425.base.alarms.AlarmSubsystem;
+import org.xero1425.base.subsystems.alarms.AlarmSubsystem;
 import org.xero1425.base.subsystems.oi.OISubsystem;
 
 /// \file

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 /// \file
 
 /// \brief this class manages the paths for external files that the robot code must access
-class RobotPaths
+public class RobotPaths
 {
     private String log_file_directory_ ;
     private String deploy_directory_ ;
@@ -34,7 +34,7 @@ class RobotPaths
 
     /// \brief return the directory for deployed files (e.g. the param file)
     /// \returns the directory for deployed files
-    String deployDirectory() {
+    public String deployDirectory() {
         return deploy_directory_ ;
     }
 

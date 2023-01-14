@@ -168,8 +168,19 @@ public class Subsystem {
         this(parent.getRobot(), parent, name) ;
     }
 
+    public String getStatus() {
+        return "This subsystem is not publishing status" ;
+    }
+
     public void publishStatus() {
-        getRobot().publishSubsystemStatus(name_, "This subsystem is not publishing status");
+        getRobot().publishSubsystemStatus(getName(), getStatus());
+        publishChildSubsystems();
+    }
+
+    protected void publishChildSubsystems() {
+        for(Subsystem sys : children_) {
+            sys.publishStatus(); ;
+        }
     }
 
     /// \brief Return a settings file value associated with this subsystem

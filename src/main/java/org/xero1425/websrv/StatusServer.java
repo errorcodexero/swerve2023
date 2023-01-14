@@ -58,13 +58,14 @@ public class StatusServer extends Thread {
                 String st = "<html><body>" + robot_status_ ;
                 for(String subsys : subsystem_status_.keySet()) {
                     String status = subsystem_status_.get(subsys) ;
-                    st += "<hr><h2>Subsystem: " + subsys + "<h2>" ;
+                    st += "<hr><h2>Subsystem: " + subsys + "</h2>" ;
                     st += status ;
                 }
 
-                strm.writeUTF("HTTP/1.1 200 OK\r\n") ;
-                strm.writeUTF("Content-Length: " + Integer.toString(st.length()) + "\r\n") ;
-                strm.writeUTF("Content-Type: text/html; charset=utf-8\r\n\r\n") ;
+                strm.writeBytes("HTTP/1.1 200 OK\r\n") ;
+                strm.writeBytes("Content-Length: " + Integer.toString(st.length()) + "\r\n") ;
+                strm.writeBytes("Content-Type: text/html; charset=utf-8\r\n\r\n") ;
+                strm.writeBytes(st) ;
                 client.close() ;
             }
             catch(IOException ex) {

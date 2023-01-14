@@ -1,4 +1,4 @@
-package org.xero1425.base.alarms;
+package org.xero1425.base.subsystems.alarms;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,21 @@ public class AlarmSubsystem extends Subsystem {
         super(parent, "alarms") ;
 
         entries_ = new ArrayList<AlarmEntry>() ;
+    }
+
+    @Override
+    public String getStatus() {
+        String st = "" ;
+
+        if (entries_.size() == 0) {
+            st += "No Alarms Set" ;
+        }
+        else {
+            for(AlarmEntry entry : entries_) {
+                st += "Alarm @ " + entry.getTime() + "<br>" ;
+            }
+        }
+        return st ;
     }
 
     /// \brief run the AlarmSubsystem.

@@ -208,6 +208,10 @@ public abstract class XeroRobot extends TimedRobot {
         }
     }
 
+    public RobotPaths getRobotFileSystemPaths() {
+        return robot_paths_ ;
+    }
+
     public List<AutoMode> getAllAutomodes() {
         final ArrayList<AutoMode> none = new ArrayList<AutoMode>() ;
 

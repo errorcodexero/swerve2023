@@ -8,7 +8,6 @@ import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
 import org.xero1425.misc.MinMaxData;
 
-import edu.wpi.first.hal.PowerDistributionStickyFaults;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -88,6 +87,11 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         shuffleboardTab.addNumber("Pose Y", () -> getPose().getY());
 
         last_pose_ = new Pose2d() ;
+    }
+
+    public String getStatus() {
+        String st = "Current Pose " + getPose().toString() ;
+        return st ;
     }
 
     protected void createOdometry() throws Exception {

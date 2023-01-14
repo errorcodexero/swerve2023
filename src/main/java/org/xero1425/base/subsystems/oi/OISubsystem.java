@@ -75,6 +75,26 @@ public class OISubsystem extends Subsystem {
         }
     }
 
+    public String getStatus() {
+        String st = "" ;
+
+        st += "Devices:<ul>" ;
+        for(OIDevice dev : devices_) {
+            int index ;
+            
+            try {
+                index = dev.getIndex() ;
+            }
+            catch(Exception ex) {
+                index = -1 ;
+            }
+
+            st += "<li>Name '" + dev.getName() + "'', index " + index + "</li>" ;
+        }
+        st += "</ul>" ;
+        return st ;
+    }
+
     public OIDevice getDevice(int index) {
         OIDevice ret = null ;
 

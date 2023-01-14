@@ -1,4 +1,4 @@
-package org.xero1425.base.alarms ;
+package org.xero1425.base.subsystems.alarms ;
 
 /// \file
 
