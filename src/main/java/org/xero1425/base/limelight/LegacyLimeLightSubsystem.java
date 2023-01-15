@@ -15,7 +15,7 @@ import org.xero1425.misc.SettingsValue;
 
 /// \brief The limelight subsystem supports the LimeLight camera.  It is expected that a class that is game
 /// specific will be derived from this class.
-public class LimeLightSubsystem extends Subsystem {
+public class LegacyLimeLightSubsystem extends Subsystem {
     private double distance_ ;
     private double yaw_ ;
 
@@ -84,7 +84,7 @@ public class LimeLightSubsystem extends Subsystem {
     /// \brief Create a new limelight subsystem
     /// \param parent the subsystem that manages this subsystem
     /// \param name the name of hte subsystem
-    public LimeLightSubsystem(Subsystem parent, String name) throws BadParameterTypeException, MissingParameterException {
+    public LegacyLimeLightSubsystem(Subsystem parent, String name) throws BadParameterTypeException, MissingParameterException {
         super(parent, name) ;
 
         last_connection_time_ = getRobot().getTime() ;

@@ -1,5 +1,8 @@
 package org.xero1425.base.subsystems.swerve.common;
 
+import org.xero1425.base.IVisionLocalization;
+import org.xero1425.base.IVisionLocalization.LocationData;
+import org.xero1425.base.IVisionLocalization.LocationType;
 import org.xero1425.base.motors.BadMotorRequestException;
 import org.xero1425.base.motors.MotorRequestFailedException;
 import org.xero1425.base.subsystems.DriveBaseSubsystem;
@@ -33,6 +36,7 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
     
     private int index_ ;
 
+    private IVisionLocalization vision_ ;
     private SwerveDriveKinematics kinematics_ ;
     private SwerveDrivePoseEstimator estimator_ ;
 
@@ -87,6 +91,10 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         shuffleboardTab.addNumber("Pose Y", () -> getPose().getY());
 
         last_pose_ = new Pose2d() ;
+    }
+
+    public void setVision(IVisionLocalization vision) {
+        vision_ = vision ;
     }
 
     public String getStatus() {
@@ -147,6 +155,16 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
         poss[2] = getModulePosition(BL) ;
         poss[3] = getModulePosition(BR) ;
         estimator_.update(Rotation2d.fromDegrees(gyro().getYaw()), poss) ;
+
+        if (vision_ != null) {
+            LocationData lc = vision_.getLocation() ;
+            if (lc != null) {
+                if (lc.type == LocationType.RobotFieldLocation) {
+                    Pose2d p2d = lc.location.toPose2d() ;
+                    addVisionMeasurement(p2d, lc.when) ;
+                }
+            }
+        }
 
         Pose2d p = getPose() ;
         double dist = p.getTranslation().getDistance(last_pose_.getTranslation()) ;

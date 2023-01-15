@@ -121,6 +121,9 @@ public abstract class XeroRobot extends TimedRobot {
     // Server for dispalying the status of the robot
     private StatusServer server_ ;
 
+    // The april tag layout for this field
+    private AprilTagFieldLayout layout_ ;
+
     /// \brief The "subsystem" name for the message logger for this class
     public static final String LoggerName = "xerorobot" ;
 
@@ -842,19 +845,20 @@ public abstract class XeroRobot extends TimedRobot {
         logger_.logStackTrace(trace) ;
     }
 
-    public AprilTagFieldLayout getAprilTags(String name) {
-        String path = robot_paths_.deployDirectory() + name ;
-        AprilTagFieldLayout layout ;
+    public AprilTagFieldLayout getAprilTags() {
+        if (layout_ == null) {
+            String path = robot_paths_.deployDirectory() + "/AprilTags.json" ;
         
-        try {
-            layout = new AprilTagFieldLayout(path) ;
-        }
-        catch (IOException ex) {
-            logger_.startMessage(MessageType.Error).add("cannot load april tag file '" + path + "' - " + ex.getMessage()).endMessage();
-            layout = null ;
+            try {
+              layout_ = new AprilTagFieldLayout(path) ;
+            }
+            catch (IOException ex) {
+                logger_.startMessage(MessageType.Error).add("cannot load april tag file '" + path + "' - " + ex.getMessage()).endMessage();
+                layout_ = null ;
+            }
         }
 
-        return layout ;
+        return layout_ ;
     }
 
     private void logAutoModeState() {

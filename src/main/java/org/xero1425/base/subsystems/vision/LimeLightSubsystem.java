@@ -3,6 +3,7 @@ package org.xero1425.base.subsystems.vision;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.xero1425.base.IVisionLocalization;
 import org.xero1425.base.subsystems.Subsystem;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -11,7 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-public class LimeLightSubsystem extends Subsystem {
+public class LimeLightSubsystem extends Subsystem implements IVisionLocalization{
 
     public class Retro {
         public Translation2d pts[] ;
@@ -75,6 +76,20 @@ public class LimeLightSubsystem extends Subsystem {
         super(parent, name) ;
     }
 
+    public LocationData getLocation() {
+        LocationData ret = null ;
+
+        if (found_ && valid_targets_ && fuds_ != null && fuds_.length > 0) {
+            ret = new LocationData() ;
+            ret.id = fuds_[0].id ;
+            ret.location = fuds_[0].robotToField ;
+            ret.type = LocationType.RobotFieldLocation ;
+            ret.when = ts_ ;                                        // TODO is this right?  Only if they are using the new NT4 time syn functions
+        }
+
+        return ret ;
+    }
+
     public int getId() {
         return id_ ;
     }
@@ -124,6 +139,21 @@ public class LimeLightSubsystem extends Subsystem {
                 parseLimelightJsonObject((JSONObject)obj) ;
             }
         }
+    }
+
+    public boolean hasAprilTag(int id) {
+        boolean ret = false ;
+
+        if (fuds_ != null) {
+            for(int i = 0 ; i < fuds_.length ; i++) {
+                if (fuds_[i].id == id) {
+                    ret = true ;
+                    break ;
+                }
+            }
+        }
+
+        return ret ;
     }
 
     private String getStringFromObject(JSONObject obj, String name, String def) {
