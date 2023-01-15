@@ -205,5 +205,35 @@
                 }
             }
         }
+    },
+    "testmode": {
+        "enabled": true,
+        "which":0,
+        "0": {
+            "angle": 0.0,
+            "power": 0.2
+        },
+        "1": {
+            "angle": 0.0,
+            "power": 0.9,
+            "duration": 1.5
+        },
+        "2": {
+            "angle": 0.0,
+            "speed": 0.5
+        },
+        "3": {
+            "angle": 0.0,
+            "speed": 2,
+            "duration": 6.0
+        },
+        "4": {
+            "name": "test_straight"
+        },
+        "5": {
+            "angle": 0.0,
+            "power": 0.1,
+            "duration": 10
+        }
     }
 }
