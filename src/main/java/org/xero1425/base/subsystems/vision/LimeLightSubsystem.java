@@ -3,6 +3,8 @@ package org.xero1425.base.subsystems.vision;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.xero1425.misc.MessageLogger ;
+import org.xero1425.misc.MessageType ;
 import org.xero1425.base.IVisionLocalization;
 import org.xero1425.base.subsystems.Subsystem;
 
@@ -12,8 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-public class LimeLightSubsystem extends Subsystem implements IVisionLocalization{
-
+public class LimeLightSubsystem extends Subsystem implements IVisionLocalization {
     public class Retro {
         public Translation2d pts[] ;
         public Pose3d camToTarget ;
@@ -128,7 +129,16 @@ public class LimeLightSubsystem extends Subsystem implements IVisionLocalization
 
     @Override
     public void computeState() {
-        String json = NetworkTableInstance.getDefault().getTable("limelight").getEntry("json").getString("") ;
+        MessageLogger logger = getRobot().getMessageLogger() ;
+        String json = NetworkTableInstance.getDefault().getTable(getName()).getEntry("json").getString("") ;
+        logger.startMessage(MessageType.Debug, getLoggerID()) ;
+        if (json.length() == 0) {
+            logger.add("<NULL>") ;
+        }
+        else {
+            logger.add(json) ;
+        }
+        logger.endMessage() ;
 
         if (json.length() == 0) {
             found_ = false ;
@@ -191,6 +201,10 @@ public class LimeLightSubsystem extends Subsystem implements IVisionLocalization
                 double d = (Double)temp ;
                 ret = (int)d ;
             }
+            else if (temp instanceof Long) {
+                long l = (Long)temp ;
+                ret = (int)l ;
+            }
             else if (temp instanceof Integer) {
                 ret = (Integer)temp ;
             }
@@ -199,14 +213,28 @@ public class LimeLightSubsystem extends Subsystem implements IVisionLocalization
         return ret ;
     }
 
+    double [] convertToDoubleArray(JSONArray arr) {
+        double [] data = new double[arr.size()] ;
+
+        for(int i = 0 ; i < arr.size() ; i++) {
+            if (!(arr.get(i) instanceof Double)) {
+                return null ;
+            }
+            data[i] = (Double)arr.get(i) ;
+        }
+
+        return data ;
+    }
+
     private Pose3d getPose3dFromObject(JSONObject obj, String name, Pose3d def) {
         Pose3d ret = def ;
 
         if (obj.containsKey(name)) {
             Object temp = obj.get(name) ;
-            if (temp instanceof double[]) {
-                double [] data = (double [])temp ;
-                if (data.length == 6) {
+            if (temp instanceof JSONArray) {
+                JSONArray dataarr = (JSONArray)temp ;
+                if (dataarr.size() == 6) {
+                    double [] data = convertToDoubleArray(dataarr) ;
                     Translation3d trans = new Translation3d(data[0], data[1], data[2]) ;
                     Rotation3d rot = new Rotation3d(data[3], data[4], data[5]) ;
                     ret = new Pose3d(trans, rot) ;
@@ -222,8 +250,8 @@ public class LimeLightSubsystem extends Subsystem implements IVisionLocalization
 
         if (obj.containsKey(name)) {
             Object temp = obj.get(name) ;
-            if (temp instanceof double[]) {
-                double [] data = (double [])temp ;
+            if (temp instanceof JSONArray) {
+                double [] data = convertToDoubleArray((JSONArray)temp) ;
                 if (data.length % 2 == 0) {
                     ret = new Translation2d[data.length / 2] ;
                     for(int i = 0 ;i < data.length ; i += 2) {
@@ -358,18 +386,31 @@ public class LimeLightSubsystem extends Subsystem implements IVisionLocalization
         }
     }
 
-    private void parseLimelightJsonObject(JSONObject obj) {
+    private void parseLimelightJsonObject(JSONObject tobj) {
         Object temp ;
 
+        temp = tobj.get("Results") ;
+        if (!(temp instanceof JSONObject)) {
+            found_ = false ;
+            return ;
+        }
+
+        JSONObject obj = (JSONObject)temp ;
         id_ = getIntFromObject(obj, "pID", 0) ;
         tl_ = getDoubleFromObject(obj, "tl", 10000.0) ;
         ts_ = getDoubleFromObject(obj, "ts", 0.0) ;
-        double v = getDoubleFromObject(obj, "v", 0.0) ;
-        if (Math.abs(v) < 0.001) {
+        int v = getIntFromObject(obj, "v", -1) ;
+        if (v == 0) {
             valid_targets_ = false ;
+            return ;
         }
-        else {
+        else if (v == 1) {
             valid_targets_ = true ;
+        }
+        else if (v == -1) {
+            valid_targets_ = false ;
+            found_ = false ;
+            return ;
         }
     
         temp = obj.get("Classifier") ;

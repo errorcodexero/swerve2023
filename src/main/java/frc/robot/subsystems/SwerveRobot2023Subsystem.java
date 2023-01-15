@@ -21,12 +21,8 @@ public class SwerveRobot2023Subsystem extends RobotSubsystem {
         oi_ = new SwerveRobot2023OISubsystem(this, db_) ;
         addChild(oi_) ;
 
-        limelight_ = new LimeLightSubsystem(this, "limelight") ;
+        limelight_ = new LimeLightSubsystem(this, "limelight-edgar") ;
         addChild(limelight_) ;
         db_.setVision(limelight_);
-    }
-
-    @Override
-    public void computeMyState() {
     }
 }

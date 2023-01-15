@@ -1,5 +1,8 @@
 package org.xero1425.base.subsystems.swerve.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.xero1425.base.IVisionLocalization;
 import org.xero1425.base.IVisionLocalization.LocationData;
 import org.xero1425.base.IVisionLocalization.LocationType;
@@ -19,6 +22,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
@@ -45,6 +51,8 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
 
     private double width_ ;
     private double length_ ;
+    private double maxv_ ;
+    private double maxa_ ;
     private double rotate_angle_ ;
     private Pose2d last_pose_ ;
 
@@ -76,6 +84,8 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
        
         width_ = getSettingsValue("physical:width").getDouble() ;
         length_ = getSettingsValue("physical:length").getDouble() ;
+        maxv_ = getSettingsValue("physical:path:maxv").getDouble() ;
+        maxa_ = getSettingsValue("physical:path:maxa").getDouble() ;
 
         //
         // Calculate the angle for the velocity vector to rotate the robot
@@ -246,7 +256,16 @@ public abstract class SwerveBaseSubsystem extends DriveBaseSubsystem {
     public void endSwervePlot() {
         endPlot(plotid_);
         plotid_ = -1 ;
-    }    
+    }
+   
+    public Trajectory createTrajectory(Pose2d end) {
+        List<Pose2d> poses = new ArrayList<Pose2d>() ;
+        poses.add(getPose()) ;
+        poses.add(end) ;
+        TrajectoryConfig config = new TrajectoryConfig(maxv_, maxa_) ;
+        config.setKinematics(kinematics_) ;
+        return TrajectoryGenerator.generateTrajectory(poses, config) ;
+    }
 
     protected void newPlotData() {
         index_ = 0 ;

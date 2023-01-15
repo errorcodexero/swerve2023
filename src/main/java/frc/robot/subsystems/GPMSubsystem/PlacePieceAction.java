@@ -3,7 +3,6 @@ package frc.robot.subsystems.GPMSubsystem;
 import java.util.Optional;
 
 import org.xero1425.base.actions.Action;
-import org.xero1425.base.subsystems.DriveBaseSubsystem;
 import org.xero1425.base.subsystems.oi.OIDevice;
 import org.xero1425.base.subsystems.swerve.common.SwerveBaseSubsystem;
 import org.xero1425.base.subsystems.vision.LimeLightSubsystem;
@@ -22,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.subsystems.SwerveRobot2023OISubsystem;
 
@@ -41,10 +41,11 @@ public class PlacePieceAction extends Action {
     private enum State {
         WaitingForTag,
         PositionDriveBase,
+        PlaceGamePiece,
         Error
     }
 
-    private GPMSubsystem gpm_ ;
+    // private GPMSubsystem gpm_ ;
     private SwerveBaseSubsystem swerve_ ;
     private SwerveRobot2023OISubsystem oi_ ;
     private LimeLightSubsystem ll_ ;
@@ -52,19 +53,27 @@ public class PlacePieceAction extends Action {
     private Slot slot_ ;
     private Height height_ ;
     private State state_ ;
+
+    private double trajectory_start_time_ ;
     private HolonomicDriveController ctrl_ ;
+    private Trajectory trajectory_ ;
     private Pose2d target_position_ ;
+    private double dist_threshold_ ;
+    private double angle_threshold_ ;
 
     public PlacePieceAction(GPMSubsystem gpm, SwerveBaseSubsystem swerve, SwerveRobot2023OISubsystem oi, LimeLightSubsystem ll, int id, Slot slot, Height height) throws Exception {
         super(gpm.getRobot().getMessageLogger()) ;
 
-        gpm_ = gpm ;
+        // gpm_ = gpm ;
         swerve_ = swerve ;
         oi_ = oi ;
         ll_ = ll ;
         id_ = id ;
         slot_ = slot ;
         height_ = height ;
+
+        dist_threshold_ = 0.0762 ;      // 3 inches as meters
+        angle_threshold_ = 5.0 ;        // 5 degrees
 
         try {
             ctrl_ = createDriveController() ;
@@ -91,6 +100,10 @@ public class PlacePieceAction extends Action {
 
             case PositionDriveBase:
                 runPositonDriveBase() ;
+                break ;
+
+            case PlaceGamePiece:
+                runPlaceGamePiece() ;
                 break ;
 
             case Error:
@@ -173,16 +186,31 @@ public class PlacePieceAction extends Action {
                 logger.endMessage();
                 state_ = State.Error ;
             }
+            trajectory_ = swerve_.createTrajectory(target_position_) ;
+            trajectory_start_time_ = swerve_.getRobot().getTime() ;
             state_ = State.PositionDriveBase ;
         }
     }
 
     private void runPositonDriveBase() {   
-        //
-        // TODO: draw a straight line, trapezoidal profile path to the target position
-        //
-        ChassisSpeeds speed = ctrl_.calculate(swerve_.getPose(), target_position_, 1.0, target_position_.getRotation()) ;
+        Trajectory.State st = trajectory_.sample(swerve_.getRobot().getTime() - trajectory_start_time_) ;
+        ChassisSpeeds speed = ctrl_.calculate(swerve_.getPose(), st, target_position_.getRotation()) ;
         swerve_.drive(speed) ;
+
+        Transform2d trans = swerve_.getPose().minus(target_position_) ;
+        if (trans.getX() < dist_threshold_ && trans.getY() < dist_threshold_ && trans.getRotation().getDegrees() < angle_threshold_) {
+            //
+            // We are at our location, stop the drive base and move to the placement state
+            //
+            swerve_.drive(new ChassisSpeeds()) ;
+            state_ = State.PlaceGamePiece ;
+        }
+    }
+
+    private void runPlaceGamePiece() {
+        OIDevice dev = oi_.getDevice(0) ;
+        dev.enable() ;
+        setDone() ;
     }
 
     private void runError() {

@@ -6,13 +6,14 @@
             "pathmanager": false,
             "xerorobot": false,
             "simulator": false,
+            "limelight-edgar" : true,
 
             // Special settings
             "pathfollowing": false,
 
             // Subsystem related messages
             "swervedrive": false,
-            "swerve2023oi": false,
+            "swerve2023oi": false
         },
         "verbose": {
         },
@@ -135,8 +136,10 @@
             "physical": {
                 "width": 0.5715, // meters
                 "length": 0.5842, // meters
-                "maxspeed": 4.14528, // meters per second
-                "maxvoltage": 12.0,
+                "path" : {
+                    "maxv" : 2.0,
+                    "maxa" : 2.0
+                },
                 "max-angular-speed": 100,
                 "max-angular-accel": 100
             },
