@@ -6,11 +6,14 @@ import org.xero1425.base.subsystems.swerve.common.SwerveBaseSubsystem;
 import org.xero1425.base.subsystems.swerve.sdsswerve.SDSSwerveDriveSubsystem;
 import org.xero1425.base.subsystems.vision.LimeLightSubsystem;
 
+import frc.robot.subsystems.GPMSubsystem.GPMSubsystem;
+
 public class SwerveRobot2023Subsystem extends RobotSubsystem {
     
     private SwerveBaseSubsystem db_;
     private SwerveRobot2023OISubsystem oi_ ;
     private LimeLightSubsystem limelight_ ;
+    private GPMSubsystem gpm_ ;
 
     public SwerveRobot2023Subsystem(XeroRobot robot) throws Exception {
         super(robot, "SwerveRobot2023Subsystem") ;
@@ -24,5 +27,12 @@ public class SwerveRobot2023Subsystem extends RobotSubsystem {
         limelight_ = new LimeLightSubsystem(this, "limelight-edgar") ;
         addChild(limelight_) ;
         db_.setVision(limelight_);
+
+        gpm_ = new GPMSubsystem(this) ;
+        addChild(gpm_) ;
+    }
+
+    public GPMSubsystem getGPM() {
+        return gpm_ ;
     }
 }

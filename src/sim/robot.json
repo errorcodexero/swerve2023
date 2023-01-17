@@ -26,6 +26,18 @@
                 "povs": 1,
                 "create_early": true
             }
+        },
+        {
+            "model" : "arm",
+            "instance" : "1",
+            "props" : {
+                "first:motor:type" : "sparkmax-brushless",
+                "first:motor:index" : 1,
+                "first:degrees_per_second_per_volt" : 30,
+                "second:motor:type" : "sparkmax-brushless",
+                "second:motor:index" : 2,
+                "second:degrees_per_second_per_volt" : 30
+            }
         }
     ]
 }

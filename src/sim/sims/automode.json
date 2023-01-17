@@ -12,9 +12,9 @@
                     {
                         "comment" : "automode must be set to the correct testmode in droid param file",
                         "start" : 0.2,
-                        "autonomous" : 0.0,
+                        "autonomous" : 30.0,
                         "between" : 0.0,
-                        "teleop" : 4.0,
+                        "teleop" : 0.0,
                         "fms" : false
                     }
                 }

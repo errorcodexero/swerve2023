@@ -103,7 +103,7 @@ public class SimMotorController {
         } catch (BadParameterTypeException e) {
         }
 
-        if (t.equals("talon_fx") || t.equals("talon_srx")) {
+        if (t.equals("talon-fx") || t.equals("talon-srx")) {
             if (handle_ == -1)
             {
                 handle_ = SimDeviceDataJNI.getSimDeviceHandle(CTREMotorController.SimDeviceName + "[" + index_ + "]") ;

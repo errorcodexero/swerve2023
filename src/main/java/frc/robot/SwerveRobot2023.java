@@ -10,6 +10,8 @@ import org.xero1425.misc.BadParameterTypeException;
 import org.xero1425.misc.MissingParameterException;
 import org.xero1425.misc.SimArgs;
 import org.xero1425.misc.XeroPathType;
+import org.xero1425.simulator.engine.ModelFactory;
+import org.xero1425.simulator.engine.SimulationEngine;
 
 import frc.robot.automodes.SwerveRobot2023AutoModeController;
 import frc.robot.subsystems.SwerveRobot2023Subsystem;
@@ -38,9 +40,17 @@ public class SwerveRobot2023 extends XeroRobot {
       return "automode";
   }
 
+  protected void addRobotSimulationModels() {
+    ModelFactory factory = SimulationEngine.getInstance().getModelFactory();
+    factory.registerModel("arm", "frc.models.ArmModel");
+}   
+
   protected void hardwareInit() throws Exception {
-      SwerveRobot2023Subsystem robot = new SwerveRobot2023Subsystem(this);
-      setRobotSubsystem(robot);
+    
+    enablePneumaticsAnalog() ;
+
+    SwerveRobot2023Subsystem robot = new SwerveRobot2023Subsystem(this);
+    setRobotSubsystem(robot);
   }
 
   @Override

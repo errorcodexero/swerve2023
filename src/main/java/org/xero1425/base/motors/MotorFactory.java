@@ -151,6 +151,9 @@ public class MotorFactory {
             //
             logger_.startMessage(MessageType.Error) ;
             logger_.add("an exception was caught while creating a motor - ");
+            logger_.add("name", name) ;
+            logger_.add("id" , id) ;
+            logger_.add(" - ") ;
             logger_.add(ex.getMessage()) ;
             logger_.endMessage();
             logger_.logStackTrace(ex.getStackTrace());
@@ -221,15 +224,15 @@ public class MotorFactory {
         //
         if (type.equals("romi")) {
             ctrl = new RomiMotorController(name, canid);
-        } else if (type.equals("talon_srx")) {
+        } else if (type.equals("talon-srx")) {
             ctrl = new CTREMotorController(name, canid, CTREMotorController.MotorType.TalonSRX);
-        } else if (type.equals("talon_fx")) {
+        } else if (type.equals("talon-fx")) {
             ctrl = new TalonFXMotorController(name, canid, leader);
-        } else if (type.equals("victor_spx")) {
+        } else if (type.equals("victor-spx")) {
             ctrl = new CTREMotorController(name, canid, CTREMotorController.MotorType.VictorSPX);
-        } else if (type.equals("sparkmax_brushless")) {
+        } else if (type.equals("sparkmax-brushless")) {
             ctrl = new SparkMaxMotorController(name, canid, true, leader);
-        } else if (type.equals("sparmmax_brushed")) {
+        } else if (type.equals("sparmmax-brushed")) {
             ctrl = new SparkMaxMotorController(name, canid, false, leader);
         } else {
             errorMessage(id, "motor type '" + type + "' is not a valid motor type");

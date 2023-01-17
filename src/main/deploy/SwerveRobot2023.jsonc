@@ -6,20 +6,24 @@
             "pathmanager": false,
             "xerorobot": false,
             "simulator": false,
-            "limelight-edgar" : true,
+            "limelight-edgar" : false,
 
             // Special settings
             "pathfollowing": false,
 
             // Subsystem related messages
             "swervedrive": false,
-            "swerve2023oi": false
+            "swerve2023oi": false,
+
+            "arm-first" : true
         },
         "verbose": {
         },
         "plotting": true,
         "pneumatics": {
-            "type": "NONE"
+            "type": "REVPH",
+            "min-pressure" : 100.0,
+            "max-pressure" : 120.0
         }
     },    
     "subsystems" : {
@@ -196,19 +200,59 @@
                 }
             }
         },
-        "photon" : {
-            "cam1" : {
-                "offset" : {
-                    "x" : 0.0,
-                    "y" : 0.0,
-                    "z" : 0.0
+        "arm" : {
+        },
+        "arm-first" : {
+            "hw" : {
+                "motors" : {
+                    "type" : "sparkmax-brushless",
+                    "canid" : 1,
+                    "neutral_mode" : "brake",
+                    "inverted" : false
+                },
+                "encoder" : {
+                    "type" : "motor",
+                    "m" : 1.0,
+                    "b" : 0.0
+                }
+            }
+        },
+        "arm-second" : {
+            "hw" : {
+                "motors" : {
+                    "type" : "sparkmax-brushless",
+                    "canid" : 2,
+                    "neutral_mode" : "brake",
+                    "inverted" : false
+                },
+                "encoder" : {
+                    "type" : "motor",
+                    "m" : 1.0,
+                    "b" : 0.0
+                }
+            }
+        },
+        "grabber" : {
+            "hw" : {
+                "solenoid" : {
+                    "module" : 0,
+                    "forward" : 1,
+                    "reverse" : 2
+                },
+                "spinner" : {
+                    "motor" : {
+                        "type" : "sparkmax_brushless",
+                        "canid" : 3,
+                        "neutral_mode" : "brake",
+                        "inverted" : false
+                    },                    
                 }
             }
         }
     },
     "testmode": {
         "enabled": true,
-        "which":0,
+        "which":10,
         "0": {
             "angle": 0.0,
             "power": 0.2
@@ -234,6 +278,14 @@
             "angle": 0.0,
             "power": 0.1,
             "duration": 10
+        },
+        "10" : {
+            "power" : 0.2,
+            "duration" : 20
+        },
+        "11" : {
+            "power" : 0.2,
+            "duration" : 1.0
         }
     }
 }
