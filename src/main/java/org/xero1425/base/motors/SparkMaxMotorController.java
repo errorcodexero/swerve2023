@@ -351,7 +351,7 @@ public class SparkMaxMotorController extends MotorController
             throw new BadMotorRequestException(this, "brushed motor does not support getPosition()") ;
 
         if (sim_ != null) {
-            throw new BadMotorRequestException(this, "cannot use velocity from the motor controller when simulating") ;
+            ret = sim_encoder_.get() ;
         } else {
             ret = encoder_.getPosition() * TicksPerRevolutionValue ;
         }
@@ -368,7 +368,7 @@ public class SparkMaxMotorController extends MotorController
     /// \brief Reset the encoder values to zero
     public void resetEncoder() throws BadMotorRequestException {
         if (!brushless_)
-            throw new BadMotorRequestException(this, "brushed motor does not support getPosition()") ;
+            throw new BadMotorRequestException(this, "brushed motor does not support resetEncoder()") ;
 
         if (sim_ != null) {
             sim_encoder_.set(0.0) ;

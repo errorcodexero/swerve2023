@@ -280,7 +280,7 @@
             "duration": 10
         },
         "10" : {
-            "power" : 0.2,
+            "power" : 1.0,
             "duration" : 20
         },
         "11" : {

@@ -33,10 +33,10 @@
             "props" : {
                 "first:motor:type" : "sparkmax-brushless",
                 "first:motor:index" : 1,
-                "first:degrees_per_second_per_volt" : 30,
+                "first:degrees_per_second_per_volt" : 180,
                 "second:motor:type" : "sparkmax-brushless",
                 "second:motor:index" : 2,
-                "second:degrees_per_second_per_volt" : 30
+                "second:degrees_per_second_per_volt" : 180
             }
         }
     ]
