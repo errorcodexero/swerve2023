@@ -281,7 +281,7 @@
         },
         "10" : {
             "power" : 1.0,
-            "duration" : 20
+            "duration" : 2
         },
         "11" : {
             "power" : 0.2,

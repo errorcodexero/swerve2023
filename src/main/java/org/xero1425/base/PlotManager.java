@@ -5,6 +5,8 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleTopic;
+import edu.wpi.first.networktables.IntegerPublisher;
+import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringArrayPublisher;
@@ -31,8 +33,11 @@ public class PlotManager
         public BooleanPublisher completePublisher_ ;
         public StringArrayTopic columnNamesTopic_ ;
         public StringArrayPublisher columnNamesPublisher_ ;
+        public IntegerTopic countTopic_ ;
+        public IntegerPublisher countPublisher_ ;
         public DoubleTopic [] dataTopics_ ;
         public DoublePublisher [] dataPublishers_ ;
+        public int count_ ;
 
         public PlotTable(int id, String name) {
             name_ = name ;
@@ -43,12 +48,14 @@ public class PlotManager
             columnNamesPublisher_ = null ;
             dataTopics_ = null ;
             dataPublishers_ = null ;
+            count_ = 0 ;
         }
     } ;
 
-    static private String CompleteEntry = "complete" ;
-    static private String ColumnsEntry = "columns" ;
-    static private String DataEntry = "data" ;
+    static private final String CompleteEntry = "complete" ;
+    static private final String ColumnsEntry = "columns" ;
+    static private final String DataEntry = "data" ;
+    static private final String CountEntry = "count" ;
     
     int next_plot_id_ ;
     String plot_table_ ;
@@ -94,6 +101,7 @@ public class PlotManager
 
         p.columnNamesTopic_ = inst.getStringArrayTopic(plotkey + "/" + ColumnsEntry) ;
         p.completeTopic_ = inst.getBooleanTopic(plotkey + "/" + CompleteEntry) ;
+        p.countTopic_ = inst.getIntegerTopic(plotkey + "/" + CountEntry) ;
 
         return id ;
     }
@@ -115,13 +123,18 @@ public class PlotManager
         p.completePublisher_ = p.completeTopic_.publish() ;
         p.completePublisher_.set(false) ;
 
+        p.countPublisher_ = p.countTopic_.publish() ;
+        p.countPublisher_.set(0) ;
+
         p.dataTopics_ = new DoubleTopic[cols.length] ;
         p.dataPublishers_ = new DoublePublisher[cols.length] ;
         for(int i = 0 ; i < cols.length ; i++) {
             String dataname = plotkey + "/" + DataEntry + "/" + Integer.toString(i) ;
             p.dataTopics_[i] = inst.getDoubleTopic(dataname) ;
-            p.dataPublishers_[i] = p.dataTopics_[i].publish(PubSubOption.keepDuplicates(true), PubSubOption.periodic(0.02)) ;
+            p.dataPublishers_[i] = p.dataTopics_[i].publish(PubSubOption.keepDuplicates(true), PubSubOption.sendAll(true), PubSubOption.periodic(0.02)) ;
         }
+
+        p.count_ = 0 ;
         
         inst.flush() ;
     }
@@ -139,6 +152,14 @@ public class PlotManager
         for(int i = 0 ; i < p.columns_ ; i++) {
             p.dataPublishers_[i].set(data[i]) ;
         }
+
+        p.count_++ ;
+        p.countPublisher_.set(p.count_) ;
+
+        NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
+        inst.flush();        
+
+        System.out.println("PlotManager: addPlotData: count " + p.count_) ;
     }
 
     public void endPlot(int id)
