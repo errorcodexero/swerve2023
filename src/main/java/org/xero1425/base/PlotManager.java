@@ -1,16 +1,9 @@
 package org.xero1425.base ;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.BooleanTopic;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleTopic;
-import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.IntegerTopic;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
-import edu.wpi.first.networktables.StringArrayPublisher;
-import edu.wpi.first.networktables.StringArrayTopic;
+import edu.wpi.first.networktables.NetworkTableEntry ;
 import java.util.Map ;
 import java.util.HashMap ;
 
@@ -23,50 +16,23 @@ import java.util.HashMap ;
 /// the plot is ednabled.  A plot is defined by a name and a set of named columns.  Each named
 /// column has a value for each robot loop.
 /// This data can be processed by the xerotune toon located here <a href="https://www.mewserver.org/xeroprogs/" here </a>
-public class PlotManager
+public class PlotManager implements IPlotManager
 {
-    private class PlotTable
-    {
-        public final String name_ ;
-        public int columns_ ;
-        public BooleanTopic completeTopic_ ;
-        public BooleanPublisher completePublisher_ ;
-        public StringArrayTopic columnNamesTopic_ ;
-        public StringArrayPublisher columnNamesPublisher_ ;
-        public IntegerTopic countTopic_ ;
-        public IntegerPublisher countPublisher_ ;
-        public DoubleTopic [] dataTopics_ ;
-        public DoublePublisher [] dataPublishers_ ;
-        public int count_ ;
-
-        public PlotTable(int id, String name) {
-            name_ = name ;
-            columns_ = -1 ;
-            completeTopic_ = null ;
-            completePublisher_ = null ;
-            columnNamesTopic_ = null ;
-            columnNamesPublisher_ = null ;
-            dataTopics_ = null ;
-            dataPublishers_ = null ;
-            count_ = 0 ;
-        }
-    } ;
-
-    static private final String CompleteEntry = "complete" ;
-    static private final String ColumnsEntry = "columns" ;
-    static private final String DataEntry = "data" ;
-    static private final String CountEntry = "count" ;
+    static private String CompleteEntry = "complete" ;
+    static private String PointsEntry = "points" ;
+    static private String ColumnsEntry = "columns" ;
+    static private String DataEntry = "data" ;
     
     int next_plot_id_ ;
     String plot_table_ ;
-    Map<Integer, PlotTable> plots_ ;
+    Map<Integer, PlotInfo> plots_ ;
     boolean enabled_ ;
 
     /// \brief create a new plot manager
     /// \param key the name of the key in the network table to hold plot data
     public PlotManager(String key)
     {
-        plots_ = new HashMap<Integer, PlotTable>() ;
+        plots_ = new HashMap<Integer, PlotInfo>() ;
         next_plot_id_ = 0 ;
         plot_table_ = key ;
         enabled_ = false ;
@@ -85,57 +51,38 @@ public class PlotManager
 
         for(int key : plots_.keySet())
         {
-            PlotTable table = plots_.get(key) ;
-            if (table.name_.equals(name)) {
+            if (plots_.get(key).name_ == name)
                 return key ;
-            }
         }
 
-        int id = next_plot_id_++ ;
-        PlotTable p = new PlotTable(id, name) ;
-        plots_.put(id, p) ;
+        PlotInfo info = new PlotInfo(name, next_plot_id_++) ;
+        plots_.put(info.index_, info) ;
 
-        NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
-
-        String plotkey = getKeyForPlot(id) ;
-
-        p.columnNamesTopic_ = inst.getStringArrayTopic(plotkey + "/" + ColumnsEntry) ;
-        p.completeTopic_ = inst.getBooleanTopic(plotkey + "/" + CompleteEntry) ;
-        p.countTopic_ = inst.getIntegerTopic(plotkey + "/" + CountEntry) ;
-
-        return id ;
+        return info.index_ ;
     }
 
     public void startPlot(int id, String[] cols)
     {
         if (!enabled_ || DriverStation.isFMSAttached() || !plots_.containsKey(id))
             return ;
-      
-        NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
-        PlotTable p = plots_.get(id) ;
-        String plotkey = getKeyForPlot(id) ;
-
-        p.columns_ = cols.length ;
-
-        p.columnNamesPublisher_ = p.columnNamesTopic_.publish() ;
-        p.columnNamesPublisher_.set(cols) ;
-
-        p.completePublisher_ = p.completeTopic_.publish() ;
-        p.completePublisher_.set(false) ;
-
-        p.countPublisher_ = p.countTopic_.publish() ;
-        p.countPublisher_.set(0) ;
-
-        p.dataTopics_ = new DoubleTopic[cols.length] ;
-        p.dataPublishers_ = new DoublePublisher[cols.length] ;
-        for(int i = 0 ; i < cols.length ; i++) {
-            String dataname = plotkey + "/" + DataEntry + "/" + Integer.toString(i) ;
-            p.dataTopics_[i] = inst.getDoubleTopic(dataname) ;
-            p.dataPublishers_[i] = p.dataTopics_[i].publish(PubSubOption.keepDuplicates(true), PubSubOption.sendAll(true), PubSubOption.periodic(0.02)) ;
-        }
-
-        p.count_ = 0 ;
         
+        PlotInfo info = plots_.get(id) ;
+        info.cols_ = cols.length ;
+        info.index_ = 0 ;
+
+        NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
+        NetworkTable table = inst.getTable(getKeyForPlot(id)) ;
+        NetworkTableEntry entry ;
+        
+        entry = table.getEntry(ColumnsEntry) ;
+        entry.setStringArray(cols) ;
+
+        entry = table.getEntry(PointsEntry) ;
+        entry.setNumber(0) ;
+
+        entry = table.getEntry(CompleteEntry) ;
+        entry.setBoolean(false) ;
+
         inst.flush() ;
     }
 
@@ -143,32 +90,31 @@ public class PlotManager
     {
         if (!enabled_ || DriverStation.isFMSAttached() || !plots_.containsKey(id))
             return ;
-
-        PlotTable p = plots_.get(id) ;
-
-        if (data.length != p.columns_)
-            return ;
-
-        for(int i = 0 ; i < p.columns_ ; i++) {
-            p.dataPublishers_[i].set(data[i]) ;
+            
+        PlotInfo info = plots_.get(id) ;
+        if (data.length == info.cols_)
+        {
+            NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
+            NetworkTable table = inst.getTable(getKeyForPlot(id)) ;
+            NetworkTableEntry entry = table.getEntry(DataEntry + "/" + Integer.toString(info.index_)) ;
+            entry.setNumberArray(data) ;
+            entry = table.getEntry(PointsEntry) ;
+            info.index_++ ;
+            entry.setNumber(info.index_) ;
         }
-
-        p.count_++ ;
-        p.countPublisher_.set(p.count_) ;
-
-        NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
-        inst.flush();        
-
-        System.out.println("PlotManager: addPlotData: count " + p.count_) ;
     }
 
     public void endPlot(int id)
     {
         if (!enabled_ || DriverStation.isFMSAttached() || !plots_.containsKey(id))
             return ;
+            
+        NetworkTableInstance inst = NetworkTableInstance.getDefault() ;
+        NetworkTable table = inst.getTable(getKeyForPlot(id)) ;
+        NetworkTableEntry entry = table.getEntry(CompleteEntry) ;
+        entry.setBoolean(true) ;
 
-        PlotTable p = plots_.get(id) ;
-        p.completePublisher_.set(true) ;
+        inst.flush() ;
     }
 
     private String getKeyForPlot(int id)
@@ -176,7 +122,19 @@ public class PlotManager
         if (!plots_.containsKey(id))
             return null ;
 
-        PlotTable plot = plots_.get(id) ;
-        return plot_table_ + "/" + plot.name_ ;
+        PlotInfo info = plots_.get(id) ;
+        return plot_table_ + "/" + info.name_ ;
     }
+
+    private class PlotInfo
+    {
+        PlotInfo(String name, int index) {
+            name_ = name ;
+            index_ = index ;
+        }
+        public String name_ ;
+        public int cols_ ;
+        public int index_ ;
+    } ;
+
 } ;
