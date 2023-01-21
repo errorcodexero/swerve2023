@@ -68,7 +68,7 @@ public class SwerveTestAutoMode extends TestAutoMode {
                 powers[3] = getDouble("power");
                 addSubActionPair(swerve, new SwervePowerAngleAction(swerve, angles, powers, getDouble("duration")), true) ;
                 break ;
-
+                
             // case 10:
             //     addSubActionPair(armFirst, new MotorEncoderPowerAction(armFirst, getDouble("power"), getDouble("duration")), true) ;
             //     break ;
@@ -76,6 +76,7 @@ public class SwerveTestAutoMode extends TestAutoMode {
             // case 11:
             //     addSubActionPair(armSecond, new MotorEncoderPowerAction(armSecond, getDouble("power"), getDouble("duration")), true) ;
             //     break ;
+
         }
     }
 }

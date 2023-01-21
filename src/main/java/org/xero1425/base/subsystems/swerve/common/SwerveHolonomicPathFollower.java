@@ -78,8 +78,9 @@ public class SwerveHolonomicPathFollower extends SwerveDriveAction {
         ctrl_.setEnabled(true);
 
         ISettingsSupplier settings = getSubsystem().getRobot().getSettingsSupplier() ;
-        double xytol = settings.get("subsystems:swervedrive:holonomic-path-following:xy-tolerance").getDouble() ;
-        double angletol = settings.get("subsystems:swervedrive:holonomic-path-following:angle-tolerance").getDouble() ;
+        String s = getSubsystem().getName() ;
+        double xytol = settings.get("subsystems:" + s + ":holonomic-path-following:xy-tolerance").getDouble() ;
+        double angletol = settings.get("subsystems:" + s + ":holonomic-path-following:angle-tolerance").getDouble() ;
         ctrl_.setTolerance(new Pose2d(xytol, xytol, Rotation2d.fromDegrees(angletol))) ;
 
         path_ = getSubsystem().getRobot().getPathManager().getPath(pathname_);

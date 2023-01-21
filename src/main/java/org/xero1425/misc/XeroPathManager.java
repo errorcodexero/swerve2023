@@ -94,7 +94,7 @@ public class XeroPathManager
         else if (path_type_ == XeroPathType.SwerveHolonomic) 
         {
             exts_ = new String[1] ;
-            exts_[0] = "_main.csv" ;
+            exts_[0] = "-main.csv" ;
         }
     }
 

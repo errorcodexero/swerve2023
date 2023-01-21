@@ -252,7 +252,7 @@
     },
     "testmode": {
         "enabled": true,
-        "which":1,
+        "which":4,
         "0": {
             "angle": 0.0,
             "power": 0.2
@@ -272,7 +272,7 @@
             "duration": 6.0
         },
         "4": {
-            "name": "test_straight"
+            "name": "test-3mx"
         },
         "5": {
             "angle": 0.0,
