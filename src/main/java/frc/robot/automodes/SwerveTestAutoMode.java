@@ -9,9 +9,6 @@ import org.xero1425.base.subsystems.swerve.common.SwervePowerAngleAction;
 import org.xero1425.base.subsystems.swerve.common.SwerveSpeedAngleAction;
 
 import frc.robot.subsystems.SwerveRobot2023Subsystem;
-import frc.robot.subsystems.ARMSubsystem.ARMSubsystem;
-import frc.robot.subsystems.GPMSubsystem.GPMSubsystem;
-// import frc.robot.subsystems.GrabberSubsystem.GrabberSubsystem;
 
 public class SwerveTestAutoMode extends TestAutoMode {
 
@@ -20,10 +17,10 @@ public class SwerveTestAutoMode extends TestAutoMode {
 
         SwerveRobot2023Subsystem robotsys = (SwerveRobot2023Subsystem) ctrl.getRobot().getRobotSubsystem();
         SwerveBaseSubsystem swerve = (SwerveBaseSubsystem) robotsys.getDB();
-        GPMSubsystem gpm = robotsys.getGPM() ;
-        ARMSubsystem arm = gpm.getARM() ;
-        MotorEncoderSubsystem armFirst = arm.getFirst() ;
-        MotorEncoderSubsystem armSecond = arm.getSecond() ;
+        // GPMSubsystem gpm = robotsys.getGPM() ;
+        // ARMSubsystem arm = gpm.getARM() ;
+        // MotorEncoderSubsystem armFirst = arm.getFirst() ;
+        // MotorEncoderSubsystem armSecond = arm.getSecond() ;
         // GrabberSubsystem grabber = gpm.getGrabber() ;
 
         double[] angles = new double[4];
@@ -72,13 +69,13 @@ public class SwerveTestAutoMode extends TestAutoMode {
                 addSubActionPair(swerve, new SwervePowerAngleAction(swerve, angles, powers, getDouble("duration")), true) ;
                 break ;
 
-            case 10:
-                addSubActionPair(armFirst, new MotorEncoderPowerAction(armFirst, getDouble("power"), getDouble("duration")), true) ;
-                break ;
+            // case 10:
+            //     addSubActionPair(armFirst, new MotorEncoderPowerAction(armFirst, getDouble("power"), getDouble("duration")), true) ;
+            //     break ;
 
-            case 11:
-                addSubActionPair(armSecond, new MotorEncoderPowerAction(armSecond, getDouble("power"), getDouble("duration")), true) ;
-                break ;
+            // case 11:
+            //     addSubActionPair(armSecond, new MotorEncoderPowerAction(armSecond, getDouble("power"), getDouble("duration")), true) ;
+            //     break ;
         }
     }
 }
