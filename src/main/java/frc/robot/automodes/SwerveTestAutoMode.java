@@ -1,6 +1,7 @@
 package frc.robot.automodes;
 
 import org.xero1425.base.controllers.TestAutoMode;
+import org.xero1425.base.subsystems.motorsubsystem.MotorEncoderMultiPowerAction;
 import org.xero1425.base.subsystems.motorsubsystem.MotorEncoderPowerAction;
 import org.xero1425.base.subsystems.motorsubsystem.MotorEncoderSubsystem;
 import org.xero1425.base.subsystems.swerve.common.SwerveBaseSubsystem;
@@ -8,7 +9,11 @@ import org.xero1425.base.subsystems.swerve.common.SwerveHolonomicPathFollower;
 import org.xero1425.base.subsystems.swerve.common.SwervePowerAngleAction;
 import org.xero1425.base.subsystems.swerve.common.SwerveSpeedAngleAction;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.SwerveRobot2023Subsystem;
+import frc.robot.subsystems.ARMSubsystem.ARMSubsystem;
+import frc.robot.subsystems.GPMSubsystem.GPMSubsystem;
+import frc.robot.subsystems.GrabberSubsystem.GrabberSubsystem;
 
 public class SwerveTestAutoMode extends TestAutoMode {
 
@@ -17,11 +22,16 @@ public class SwerveTestAutoMode extends TestAutoMode {
 
         SwerveRobot2023Subsystem robotsys = (SwerveRobot2023Subsystem) ctrl.getRobot().getRobotSubsystem();
         SwerveBaseSubsystem swerve = (SwerveBaseSubsystem) robotsys.getDB();
-        // GPMSubsystem gpm = robotsys.getGPM() ;
-        // ARMSubsystem arm = gpm.getARM() ;
-        // MotorEncoderSubsystem armFirst = arm.getFirst() ;
-        // MotorEncoderSubsystem armSecond = arm.getSecond() ;
-        // GrabberSubsystem grabber = gpm.getGrabber() ;
+        MotorEncoderSubsystem armFirst = null ;
+        MotorEncoderSubsystem armSecond = null ;
+
+        GPMSubsystem gpm = robotsys.getGPM() ;
+        ARMSubsystem arm = gpm.getARM() ;
+
+        if (RobotBase.isSimulation()) {
+            armFirst = arm.getFirst() ;
+            armSecond = arm.getSecond() ;
+        }
 
         double[] angles = new double[4];
         double[] powers = new double[4];
@@ -69,13 +79,25 @@ public class SwerveTestAutoMode extends TestAutoMode {
                 addSubActionPair(swerve, new SwervePowerAngleAction(swerve, angles, powers, getDouble("duration")), true) ;
                 break ;
                 
-            // case 10:
-            //     addSubActionPair(armFirst, new MotorEncoderPowerAction(armFirst, getDouble("power"), getDouble("duration")), true) ;
-            //     break ;
+            case 10:
+                if (RobotBase.isSimulation()) {
+                    addSubActionPair(armFirst, new MotorEncoderPowerAction(armFirst, getDouble("power"), getDouble("duration")), true) ;
+                }
+                break ;
 
-            // case 11:
-            //     addSubActionPair(armSecond, new MotorEncoderPowerAction(armSecond, getDouble("power"), getDouble("duration")), true) ;
-            //     break ;
+            case 11:
+                if (RobotBase.isSimulation()) {
+                    addSubActionPair(armSecond, new MotorEncoderPowerAction(armSecond, getDouble("power"), getDouble("duration")), true) ;
+                }
+                break ;
+
+            case 12:
+                if (RobotBase.isSimulation()) {
+                    double [] mtimes = { 4.0, 4.0, 4.0, 4.0, 4.0 } ;
+                    double [] mpowers = { 0.1, 0.3, 0.5, 0.7, 0.9 } ;
+                    addSubActionPair(armFirst, new MotorEncoderMultiPowerAction(armFirst, mtimes, mpowers), true) ; ;
+                }
+                break ;                
 
         }
     }

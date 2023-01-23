@@ -63,24 +63,20 @@ public class ArmModel extends SimulationModel {
 
     @Override
     public void run(double dt) {
-        double power, encoder ;
-
-
+        double power, encoder, delta, factor ;
 
         power = first_.getPower() ;
-        first_angle_ += power * first_degrees_per_second_per_volt_ * dt ;
-        encoder = first_angle_ / 360.0 * 42.0 ;
+        delta = power * first_degrees_per_second_per_volt_ * dt;
+        first_angle_ += delta ;
+        factor = Math.random() * 0.4 - 0.2 ;
+        encoder = (first_angle_ + (factor * delta))/ 360.0 * 42.0 ;
         first_.setEncoder(encoder);
 
-        if (Math.abs(power) > 0.05) {
-            MessageLogger logger = getEngine().getMessageLogger() ;
-            logger.startMessage(MessageType.Info) ;
-            logger.add("first ").add("angle", first_angle_).add("encoder", encoder).add("dt", dt).add("dps", first_degrees_per_second_per_volt_).endMessage();
-        }
-
         power = second_.getPower() ;
-        second_angle_ += power * second_degrees_per_second_per_volt_ * dt ;
-        encoder = second_angle_ / 360.0 * 42.0 ;
+        delta = power * second_degrees_per_second_per_volt_ * dt;
+        second_angle_ += delta ;
+        factor = Math.random() * 0.4 - 0.2 ;
+        encoder = (second_angle_ + (factor * delta))/ 360.0 * 42.0 ;
         second_.setEncoder(encoder);
     }
 }
