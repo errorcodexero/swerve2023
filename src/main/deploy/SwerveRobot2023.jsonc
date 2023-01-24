@@ -102,7 +102,7 @@
             },
             "pids": {
                 "fl": {
-                    "kp": 0.1,
+                    "kp": 0.0, //0.02,
                     "ki": 0.0,
                     "kd": 0.0,
                     "kf": 0.2193,
@@ -111,7 +111,7 @@
                     "imax": 0.0
                 },
                 "fr": {
-                    "kp": 0.1,
+                    "kp": 0.0, //0.02,
                     "ki": 0.0,
                     "kd": 0.0,
                     "kf": 0.2183,
@@ -120,7 +120,7 @@
                     "imax": 0.0
                 },
                 "bl": {
-                    "kp": 0.1,
+                    "kp": 0.0, //0.02,
                     "ki": 0.0,
                     "kd": 0.0,
                     "kf": 0.2160,
@@ -129,7 +129,7 @@
                     "imax": 0.0
                 },
                 "br": {
-                    "kp": 0.1,
+                    "kp": 0.0, //0.02,
                     "ki": 0.0,
                     "kd": 0.0,
                     "kf": 0.2183,
@@ -155,8 +155,8 @@
                 "drive-current-limit": 30.0
             },
             "holonomic-path-following": {
-                "xy-tolerance": 0.1,
-                "angle-tolerance": 15.0
+                "xy-tolerance": 0.05,
+                "angle-tolerance": 2.0
             }
         },
         "swerve2023oi": {
@@ -253,15 +253,15 @@
     },
     "testmode": {
         "enabled": true,
-        "which": 12,
+        "which": 1,
         "0": {
             "angle": 0.0,
             "power": 0.2
         },
         "1": {
             "angle": 0.0,
-            "power": 0.1,
-            "duration": 4
+            "power": 0.5,
+            "duration": 3
         },
         "2": {
             "angle": 0.0,
@@ -273,7 +273,7 @@
             "duration": 6.0
         },
         "4": {
-            "name": "test-3mx"
+            "name": "test-8mx"
         },
         "5": {
             "angle": 0.0,

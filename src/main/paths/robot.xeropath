@@ -54,6 +54,31 @@
                         }
                     ],
                     "startvelocity": 0
+                },
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 4,
+                    "maxvelocity": 4,
+                    "name": "8mx",
+                    "points": [
+                        {
+                            "heading": 0,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 0,
+                            "y": 0
+                        },
+                        {
+                            "heading": 0,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 8,
+                            "y": 0
+                        }
+                    ],
+                    "startvelocity": 0
                 }
             ]
         }
